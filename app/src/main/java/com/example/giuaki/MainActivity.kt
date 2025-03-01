@@ -7,8 +7,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,7 +33,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.material3.Divider
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -43,13 +40,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-
+import androidx.compose.material.BottomAppBar
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.ui.text.font.FontStyle
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,7 +100,7 @@ fun HomeScreen() {
         Scaffold(
             topBar = { AppBar() },
             containerColor = Color.Transparent,
-            bottomBar = { BottomIconsBar() }
+            bottomBar = { MyBottomBar() }
         ) { paddingValues ->
             // Điều hướng giữa màn hình chính và chi tiết sản phẩm
             NavHost(
@@ -117,7 +118,7 @@ fun HomeScreen() {
                     val price = backStackEntry.arguments?.getString("price") ?.toInt() ?: 0
                     val discountPercent = backStackEntry.arguments?.getString("discountPercent")?.toInt() ?: 0
                     val imagePainter = painterResource(id = R.drawable.grilled_ribeye_steak)
-                    val productDescription = "Bấm mua liền tay để nhận được những ưu đãi lớn nhất"
+                    val productDescription = "Thịt bò được nhập khẩu từ Mỹ, với vị tươi ngon thượng hạng của trời Âu."
                     ProductDetailScreen(navController, title, price, discountPercent, imagePainter,productDescription)
                 }
             }
@@ -160,12 +161,21 @@ fun AppBar() {
                 .fillMaxHeight()
         )
         Spacer(modifier = Modifier.width(8.dp))
-        IconButton(onClick = { }) {
-            Icon(imageVector = Icons.Outlined.FavoriteBorder, contentDescription = "", tint = Color.DarkGray)
-        }
-        IconButton(onClick = {}) {
-            Icon(imageVector = Icons.Outlined.Notifications, contentDescription = "", tint = Color.DarkGray)
-        }
+    }
+    Row(
+        Modifier
+            .padding(top = 84.dp)
+            .padding(start = 16.dp)
+            .height(48.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        Text(
+            text = "Chào mừng bạn đến với TT Restaurant",
+            fontSize = 16.sp,
+            fontStyle = FontStyle.Italic,
+            color = colorResource(R.color.orange)
+        )
     }
 }
 
@@ -174,13 +184,11 @@ fun Content(navController: NavController, paddingValues: PaddingValues) {
     Column {
         Spacer(modifier = Modifier.height(100.dp))
         Header()
-        Spacer(modifier = Modifier.height(16.dp))
         Promotions()
         Spacer(modifier = Modifier.height(16.dp))
         CategorySection()
         Spacer(modifier = Modifier.height(16.dp))
         BestSellerSection(navController)
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 @Composable
@@ -206,21 +214,21 @@ fun Promotions() {
             PromotionItem(
                 imagePainter = painterResource(id = R.drawable.pizza),
                 title = "Pizza",
-                backgroundColor = MaterialTheme.colorScheme.primary
+                backgroundColor = colorResource(R.color.orange)
             )
         }
         item {
             PromotionItem(
                 imagePainter = painterResource(id = R.drawable.hot_dog),
                 title = "Hotdog",
-                backgroundColor = Color(0xff6EB6F5)
+                backgroundColor = colorResource(R.color.darkBrown)
             )
         }
         item {
             PromotionItem(
                 imagePainter = painterResource(id = R.drawable.sashimi_platter),
                 title = "sashimi",
-                backgroundColor = colorResource(R.color.darkBrown)
+                backgroundColor = colorResource(R.color.darkPurple)
             )
         }
     }
@@ -268,7 +276,7 @@ fun CategorySection() {
             horizontalArrangement = Arrangement.SpaceBetween
             ) {
             Text(
-                text = "Danh mục",
+                text = "Danh mục sản phẩm",
                 style = MaterialTheme.typography.headlineSmall // Thay thế h6 bằng headlineSmall
             )
             TextButton(onClick = {}) {
@@ -278,9 +286,14 @@ fun CategorySection() {
         }
 
         Row(
-            Modifier.fillMaxWidth(),
+            Modifier.fillMaxWidth().padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            CategoryButton(
+                text = "Thịt",
+                icon = painterResource(id = R.drawable.thit),
+                backgroundColor = Color(0xffF6E6E9)
+            )
             CategoryButton(
                 text = "Hamburger",
                 icon = painterResource(id = R.drawable.hambur),
@@ -295,11 +308,6 @@ fun CategorySection() {
                 text = "Sữa",
                 icon = painterResource(id = R.drawable.milk),
                 backgroundColor = Color(0xffFFFBF3)
-            )
-            CategoryButton(
-                text = "Thịt",
-                icon = painterResource(id = R.drawable.thit),
-                backgroundColor = Color(0xffF6E6E9)
             )
         }
     }
@@ -339,7 +347,7 @@ fun BestSellerSection(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "Sản phẩm", style = MaterialTheme.typography.headlineSmall)
+            Text(text = "Yêu thích", style = MaterialTheme.typography.headlineSmall)
             TextButton(onClick = {}) {
                 Text(text = "Thêm", color = MaterialTheme.colorScheme.primary)
             }
@@ -360,7 +368,8 @@ fun BestSellerItems(navController: NavController) {
                 imagePainter = painterResource(id = R.drawable.grilled_ribeye_steak),
                 title = "Bò bít tết",
                 price = 50000,
-                navController = navController
+                navController = navController,
+                color = colorResource(R.color.darkPurple)
             )
         }
         item {
@@ -368,7 +377,8 @@ fun BestSellerItems(navController: NavController) {
                 imagePainter = painterResource(id = R.drawable.mint_lemonade),
                 title = "Nước chanh",
                 price = 20000,
-                navController = navController
+                navController = navController,
+                color = colorResource(R.color.darkPurple)
             )
         }
         item {
@@ -376,7 +386,8 @@ fun BestSellerItems(navController: NavController) {
                 imagePainter = painterResource(id = R.drawable.veggie_extravaganza),
                 title = "Bánh bò",
                 price = 150000,
-                navController = navController
+                navController = navController,
+                color = colorResource(R.color.darkPurple)
             )
         }
     }
@@ -389,6 +400,7 @@ fun BestSellerItem(
     discountPercent: Int = 0,
     rating: Float = 0f,
     imagePainter: Painter,
+    color: Color,
     navController: NavController
 ) {
     // Calculate discounted price
@@ -454,10 +466,9 @@ data class Review(
 )
 
 val sampleReviews = listOf(
-    Review("Toan", 4, "Rất tuyệt vời rất sạch."),
-    Review("Khang", 2, "ăn rất đậm vị."),
-    Review("Tri", 10, "giá rất tốt mọi người nên thử."),
-    Review("Nhật", 3, "sẽ ghé ủng hộ thêm."),
+    Review("Nguyen Van A", 5, "Tươi ngon tuyệt vời! Sẽ ủng hộ thêm.."),
+    Review("Thanh Tri", 2, "Thịt không đậm đà!"),
+    Review("Tran Thi B", 4, "Ngon bỏ rẻ mọi người nên thử."),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -539,14 +550,14 @@ fun ProductDetailScreen(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(imageVector = Icons.Filled.Star, contentDescription = "Đánh giá", tint = Color(0xFFFFD700)) // Icon sao vàng
-                Text(text = "4.5", fontSize = 16.sp)
+                Text(text = "4.8", fontSize = 16.sp)
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = "(300)", fontSize = 16.sp, color = Color.Gray)
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "500 Lượt bán", fontSize = 16.sp)
+            Text(text = "1,2k lượt bán", fontSize = 16.sp)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Miễn phí vận chuyển", fontSize = 16.sp)
+            Text(text = "Voucher 15%", fontSize = 16.sp)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -556,7 +567,7 @@ fun ProductDetailScreen(
             onClick = { /* No action for now */ },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = colorResource(R.color.darkPurple)
             )
         ) {
             Text(text = "Thêm vào giỏ hàng")
@@ -565,14 +576,14 @@ fun ProductDetailScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Hiển thị mô tả chi tiết sản phẩm
-        Text(text = "Mô tả sản phẩm", fontWeight = FontWeight                                                                                        .Bold, fontSize = 20.sp)
+        Text(text = "Mô tả", fontWeight = FontWeight                                                                                        .Bold, fontSize = 20.sp)
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = productDescription, fontSize = 16.sp)
 
         Spacer(modifier = Modifier.height(24.dp))
 
         // Hiển thị danh sách đánh giá
-        Text(text = "Đánh giá khách hàng", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Text(text = "Đánh giá sản phẩm", fontWeight = FontWeight.Bold, fontSize = 20.sp)
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn(
@@ -606,32 +617,57 @@ fun ProductDetailScreen(
 }
 
 @Composable
-fun BottomIconsBar() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = colorResource(R.color.darkPurple)) // Màu cam cho thanh nền
-            .padding(8.dp) // Khoảng cách từ icon đến cạnh thanh màu cam
+@Preview
+fun MyBottomBar() {
+    val bottomMenuItemsList= prepareBottomMenu()
+    val contect = LocalContext.current
+    var selectedItem by remember{ mutableStateOf("Home") }
+
+    BottomAppBar(
+        backgroundColor = colorResource(R.color.grey),
+        elevation = 3.dp
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly, // Căn đều các icon
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { }) {
-                Icon(imageVector = Icons.Outlined.Home, contentDescription = "", tint = Color.White)
-            }
-            IconButton(onClick = { }) {
-                Icon(imageVector = Icons.Outlined.ShoppingCart, contentDescription = "", tint = Color.White)
-            }
-            IconButton(onClick = { }) {
-                Icon(imageVector = Icons.Outlined.Person, contentDescription = "", tint = Color.White)
-            }
+        bottomMenuItemsList.forEach{bottomMenuItem ->
+            BottomNavigationItem(
+                selected = (selectedItem==bottomMenuItem.label),
+                onClick = {
+                    selectedItem=bottomMenuItem.label
+                    if(bottomMenuItem.label =="Cart") {
+
+                    } else {
+
+                    }
+                },
+                icon = {
+                    Icon(
+                        painter=bottomMenuItem.icon,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .size(20.dp)
+                    )
+                }
+            )
         }
     }
 }
 
+data class BottomMenuItem(
+    val label:String, val icon: Painter
+)
+
+@Composable
+fun prepareBottomMenu():List<BottomMenuItem> {
+    val bottomMenuItemList = arrayListOf<BottomMenuItem>()
+
+    bottomMenuItemList.add(BottomMenuItem(label = "Home", icon = painterResource(R.drawable.btn_1)))
+    bottomMenuItemList.add(BottomMenuItem(label = "Cart", icon = painterResource(R.drawable.btn_2)))
+    bottomMenuItemList.add(BottomMenuItem(label = "Favourite", icon = painterResource(R.drawable.btn_3)))
+    bottomMenuItemList.add(BottomMenuItem(label = "Order", icon = painterResource(R.drawable.btn_4)))
+    bottomMenuItemList.add(BottomMenuItem(label = "Profile", icon = painterResource(R.drawable.btn_5)))
+
+    return bottomMenuItemList
+}
 
 
 
